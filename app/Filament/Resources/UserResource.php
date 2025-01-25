@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\ApplicationResource\Pages;
-use App\Filament\Resources\ApplicationResource\RelationManagers;
-use App\Models\Application;
+use App\Filament\Resources\UserResource\Pages;
+use App\Filament\Resources\UserResource\RelationManagers;
+use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -13,11 +13,11 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class ApplicationResource extends Resource
+class UserResource extends Resource
 {
-    protected static ?string $model = Application::class;
+    protected static ?string $model = User::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-squares-2x2';
+    protected static ?string $navigationIcon = 'heroicon-o-user-circle';
 
     public static function form(Form $form): Form
     {
@@ -26,11 +26,19 @@ class ApplicationResource extends Resource
                 Forms\Components\TextInput::make('name')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('slug')
+                Forms\Components\TextInput::make('email')
+                    ->email()
                     ->required()
                     ->maxLength(255),
-                Forms\Components\Textarea::make('description')
-                    ->columnSpanFull()
+                Forms\Components\TextInput::make('password')
+                    ->password()
+                    ->revealable()
+                    ->required()
+                    ->maxLength(255),
+                Forms\Components\TextInput::make('password_confirmation')
+                    ->password()
+                    ->revealable()
+                    ->required()
                     ->maxLength(255),
             ]);
     }
@@ -40,9 +48,9 @@ class ApplicationResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name'),
-                Tables\Columns\TextColumn::make('slug'),
-                Tables\Columns\TextColumn::make('description'),
-                Tables\Columns\TextColumn::make('user.name'),
+                Tables\Columns\TextColumn::make('email'),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->dateTime('d-m-Y H:i'),
             ])
             ->filters([
                 //
@@ -68,7 +76,7 @@ class ApplicationResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListApplications::route('/'),
+            'index' => Pages\ListUsers::route('/'),
         ];
     }
 }
