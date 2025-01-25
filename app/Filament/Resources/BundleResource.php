@@ -18,6 +18,7 @@ class BundleResource extends Resource
     protected static ?string $model = Bundle::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-cube';
+    protected static ?string $navigationGroup = 'Main';
 
     public static function form(Form $form): Form
     {
