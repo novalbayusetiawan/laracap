@@ -10,6 +10,15 @@ class EditBundle extends EditRecord
 {
     protected static string $resource = BundleResource::class;
 
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        $filePath = storage_path('app/public/' . $data['file_path']);
+
+        $data['size'] = filesize($filePath);
+
+        return $data;
+    }
+
     protected function getHeaderActions(): array
     {
         return [

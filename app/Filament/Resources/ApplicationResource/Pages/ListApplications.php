@@ -5,6 +5,7 @@ namespace App\Filament\Resources\ApplicationResource\Pages;
 use App\Filament\Resources\ApplicationResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
+use Illuminate\Support\Facades\Auth;
 
 class ListApplications extends ListRecords
 {
@@ -13,7 +14,12 @@ class ListApplications extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            Actions\CreateAction::make()
+                ->mutateFormDataUsing(function (array $data): array {
+                    $data['user_id'] = Auth::id();
+
+                    return $data;
+                }),
         ];
     }
 }

@@ -35,15 +35,12 @@ class BundleResource extends Resource
                 Forms\Components\Textarea::make('description')
                     ->columnSpanFull()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('size')
-                    ->required()
-                    ->numeric()
-                    ->step(0.01),
                 Forms\Components\FileUpload::make('file_path')
                     ->required()
                     ->maxSize(1024 * 1024 * 10) // 10MB
                     ->disk('public')
-                    ->directory('bundles'),
+                    ->directory('bundles')
+                    ->columnSpanFull(),
 
             ]);
     }
@@ -55,14 +52,23 @@ class BundleResource extends Resource
                 Tables\Columns\TextColumn::make('name'),
                 Tables\Columns\TextColumn::make('application.name'),
                 Tables\Columns\TextColumn::make('description'),
-                Tables\Columns\TextColumn::make('size'),
-                Tables\Columns\TextColumn::make('file_path'),
+                Tables\Columns\TextColumn::make('size')
+                    ->sortable()
+                    ->formatStateUsing(function ($state) {
+                        return $state > 1024 * 1024 ? round($state / (1024 * 1024), 2) . ' MB' : round($state / 1024) . ' KB';
+                    }),
+                Tables\Columns\IconColumn::make('file_path')
+                    ->label('File')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->url(fn(Bundle $record): string => asset('storage/' . $record->file_path))
+                    ->openUrlInNewTab(),
             ])
             ->filters([
                 //
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
