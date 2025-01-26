@@ -51,7 +51,8 @@ class BundleResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('name'),
                 Tables\Columns\TextColumn::make('application.name'),
-                Tables\Columns\TextColumn::make('description'),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->dateTime(),
                 Tables\Columns\TextColumn::make('size')
                     ->sortable()
                     ->formatStateUsing(function ($state) {
@@ -64,7 +65,25 @@ class BundleResource extends Resource
                     ->openUrlInNewTab(),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('application')
+                    ->relationship('application', 'name'),
+                Tables\Filters\SelectFilter::make('created_at')
+                    ->label('Time Period')
+                    ->options([
+                        'today' => 'Today',
+                        'week' => 'This Week',
+                        'month' => 'This Month',
+                        'year' => 'This Year',
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return match ($data['value']) {
+                            'today' => $query->whereDate('created_at', now()),
+                            'week' => $query->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()]),
+                            'month' => $query->whereMonth('created_at', now()->month),
+                            'year' => $query->whereYear('created_at', now()->year),
+                            default => $query
+                        };
+                    })
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

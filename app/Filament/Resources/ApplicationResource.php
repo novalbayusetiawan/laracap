@@ -30,6 +30,11 @@ class ApplicationResource extends Resource
             ->schema([
                 Infolists\Components\Section::make()
                     ->schema([
+                        Infolists\Components\TextEntry::make('uuid')
+                            ->label('Application ID')
+                            ->copyable(true)
+                            ->copyMessage('Application ID copied')
+                            ->copyMessageDuration(1500),
                         Infolists\Components\TextEntry::make('name')
                             ->label('Application Name'),
                         Infolists\Components\TextEntry::make('slug')
@@ -40,6 +45,23 @@ class ApplicationResource extends Resource
                             ->label('Description')
                             ->columnSpanFull()
                             ->markdown(),
+
+                        Infolists\Components\RepeatableEntry::make('bundles')
+                            ->schema([
+                                Infolists\Components\IconEntry::make('file_path')
+                                    ->label(fn($record) => $record->size > 1024 * 1024 ?
+                                        'Download (' . round($record->size / (1024 * 1024), 2) . ' MB)' :
+                                        'Download (' . round($record->size / 1024) . ' KB)')
+                                    ->icon('heroicon-o-arrow-down-tray')
+                                    ->url(fn($record): string => asset('storage/' . $record->file_path))
+                                    ->openUrlInNewTab(),
+                                Infolists\Components\TextEntry::make('name')
+                                    ->label('Version'),
+                                Infolists\Components\TextEntry::make('created_at')
+                                    ->dateTime(),
+                            ])
+                            ->columns(3)
+
                     ])
                     ->columns(1),
             ]);
@@ -65,7 +87,7 @@ class ApplicationResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name'),
+                Tables\Columns\TextColumn::make('name')->searchable(),
                 Tables\Columns\TextColumn::make('slug'),
                 Tables\Columns\TextColumn::make('user.name'),
             ])
@@ -73,14 +95,16 @@ class ApplicationResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make()
-                    ->mutateFormDataUsing(function (array $data): array {
-                        $data['user_id'] = Auth::id();
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\ViewAction::make(),
+                    Tables\Actions\EditAction::make()
+                        ->mutateFormDataUsing(function (array $data): array {
+                            $data['user_id'] = Auth::id();
 
-                        return $data;
-                    }),
-                Tables\Actions\DeleteAction::make(),
+                            return $data;
+                        }),
+                    Tables\Actions\DeleteAction::make(),
+                ]),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
