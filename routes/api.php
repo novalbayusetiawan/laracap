@@ -26,6 +26,6 @@ Route::get('applications/{application}/bundles/latest', LatestAppBundleControlle
 
 Route::post('login', [AuthTokenController::class, 'store'])
     ->name('login');
-
 Route::delete('logout', [AuthTokenController::class, 'destroy'])
+    ->middleware('auth:sanctum')
     ->name('logout');
