@@ -8,7 +8,7 @@ class BundlesChart extends ChartWidget
 {
     protected static ?int $sort = 2;
 
-    protected static ?string $heading = 'Bundles Uploaded';
+    protected ?string $heading = 'Bundles Uploaded';
 
     protected int | string | array $columnSpan = 'full';
 
