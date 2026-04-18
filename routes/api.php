@@ -11,6 +11,9 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
 });
 
+Route::get('applications/{application}/bundles/latest', LatestAppBundleController::class)
+    ->name('latest-app-bundle');
+
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('applications', [ApplicationController::class, 'index'])
         ->name('applications.index');
@@ -18,10 +21,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('bundles', [BundleController::class, 'store'])
         ->name('create-app-bundle');
 });
-
-
-Route::get('applications/{application}/bundles/latest', LatestAppBundleController::class)
-    ->name('latest-app-bundle');
 
 
 Route::post('login', [AuthTokenController::class, 'store'])

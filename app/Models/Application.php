@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Application extends Model
 {
@@ -20,6 +21,11 @@ class Application extends Model
         return ['uuid'];
     }
 
+    public function getRouteKeyName(): string
+    {
+        return 'uuid';
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -28,5 +34,10 @@ class Application extends Model
     public function bundles(): HasMany
     {
         return $this->hasMany(Bundle::class);
+    }
+
+    public function latestBundle(): HasOne
+    {
+        return $this->hasOne(Bundle::class)->latestOfMany();
     }
 }
