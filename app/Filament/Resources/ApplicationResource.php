@@ -123,6 +123,17 @@ class ApplicationResource extends Resource
             ]);
     }
 
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+
+        if (Auth::user()?->is_admin) {
+            return $query;
+        }
+
+        return $query->where('user_id', Auth::id());
+    }
+
     public static function getRelations(): array
     {
         return [

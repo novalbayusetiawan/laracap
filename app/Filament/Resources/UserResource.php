@@ -17,6 +17,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Facades\Auth;
 use UnitEnum;
 use BackedEnum;
 
@@ -26,6 +27,11 @@ class UserResource extends Resource
 
     protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-user-circle';
     protected static UnitEnum|string|null $navigationGroup = 'Settings';
+
+    public static function canViewAny(): bool
+    {
+        return Auth::user()?->is_admin ?? false;
+    }
     public static function form(Schema $schema): Schema
     {
         return $schema
@@ -84,6 +90,7 @@ class UserResource extends Resource
     {
         return [
             'index' => Pages\ListUsers::route('/'),
+            'create' => Pages\CreateUser::route('/create'),
         ];
     }
 }

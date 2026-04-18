@@ -17,6 +17,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Facades\Auth;
 use UnitEnum;
 use BackedEnum;
 
@@ -32,7 +33,11 @@ class BundleResource extends Resource
         return $schema
             ->schema([
                 Forms\Components\Select::make('application_id')
-                    ->relationship('application', 'name')
+                    ->relationship(
+                        name: 'application',
+                        titleAttribute: 'name',
+                        modifyQueryUsing: fn (Builder $query) => $query->where('user_id', auth()->id()),
+                    )
                     ->required(),
                 Forms\Components\TextInput::make('name')
                     ->placeholder('v1.0.0')
@@ -57,7 +62,6 @@ class BundleResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name'),
-                Tables\Columns\TextColumn::make('application.name'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime(),
                 Tables\Columns\TextColumn::make('size')
@@ -72,8 +76,6 @@ class BundleResource extends Resource
                     ->openUrlInNewTab(),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('application')
-                    ->relationship('application', 'name'),
                 Tables\Filters\SelectFilter::make('created_at')
                     ->label('Time Period')
                     ->options([
@@ -101,6 +103,17 @@ class BundleResource extends Resource
                     DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+
+        if (Auth::user()?->is_admin) {
+            return $query;
+        }
+
+        return $query->whereHas('application', fn(Builder $query) => $query->where('user_id', Auth::id()));
     }
 
     public static function getRelations(): array
