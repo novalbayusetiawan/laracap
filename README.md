@@ -1,66 +1,49 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Laracap
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Laracap is an open-source, self-hosted web management panel designed specifically for **Capacitor apps**. Built on top of Laravel 12 and Filament v4, this platform acts as a powerful alternative to commercial services like Ionic Appflow or Expo EAS by allowing you to completely own your over-the-air (OTA) update infrastructure.
 
-## About Laravel
+## 🚀 Features
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+The system is constructed with a scalable Multi-Tenant architecture:
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- **Application Management**: Safely register and manage multiple standalone Capacitor applications within a single dashboard. Data is strictly isolated by User ID.
+- **Channel Routing**: Deploy updates to specific release streams (e.g., `Production`, `Beta`, `Internal`). Test new bundles safely before promoting them to your entire user base.
+- **Bundle Versioning & Uploads**: Upload zipped HTML/JS/CSS web assets as immutable bundles. Track file sizes, versions, and deployment timelines automatically.
+- **Device Fleet Tracking**: Automatically track devices checking in for updates. Monitor device platforms (iOS, Android, Web), UUIDs, last active timestamps, and trace exactly which bundle version they are currently running.
+- **Advanced API Token Management**: Issue secure, non-expiring (or expiring) Laravel Sanctum API Tokens to authenticate your CI/CD pipelines or client apps. Includes a bespoke UI to securely store and 1-click copy plain-text tokens right from the browser.
+- **Admin Panel**: A beautiful, responsive, and mobile-friendly Filament v4 interface that requires zero frontend configuration to get started.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## 💡 Benefits
 
-## Learning Laravel
+- **Self-Hosted & Private**: Retain 100% control of your users' data, your proprietary source code bundles, and your infrastructure.
+- **Cost-Effective**: Avoid expensive MAU (Monthly Active User) pricing models commonly used by enterprise live-update providers.
+- **Instant Deployments**: Bypass the iOS App Store and Google Play Store review processes for standard HTML/JS/CSS codebase changes. Ship bug fixes to users instantly.
+- **Extensible**: Because it's built on Laravel, adding custom OAuth integrations, webhooks, or S3 bucket offloading is native and seamless.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+---
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+## 🔮 Future Development Recommendations
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+To evolve the project further, the following additions are recommended for future milestones:
 
-## Laravel Sponsors
+1. **Client API Endpoints (`/api/check` and `/api/download`)**
+   - Implement the actual public-facing REST API routes that the frontend Capacitor mobile app will query to discover if a new bundle exists for their assigned channel, and download the `.zip` securely.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+2. **Canary / Phased Rollouts**
+   - Add a `rollout_percentage` field to Bundles. This allows gradually upgrading a percentage of devices (e.g., 10%) automatically before committing to a 100% rollout to test for regression.
 
-### Premium Partners
+3. **CI/CD CLI Tooling (`laracap-cli`)**
+   - Build an NPM CLI package that developers can run inside GitHub Actions or GitLab CI to automatically build the web assets, zip them, and push them directly to this Laravel backend using the Sanctum API Tokens.
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+4. **Webhooks & Notifications**
+   - Add native webhooks to broadcast to Slack, Discord, or generic endpoints whenever a new bundle is pushed or a channel's active bundle is rotated.
 
-## Contributing
+5. **Team Workspaces & RBAC**
+   - Introduce Laravel teams or Spatie Permissions. Allow multiple developers to manage the same `Application` without requiring super-admin privileges.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+6. **S3 / CDN Offloading**
+   - By default, bundles are stored locally in the `public` disk. Transition the storage mechanism strictly to Amazon S3 or Cloudflare R2 for enhanced redundancy and edge-caching speed.
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+This custom management panel is open-source software built utilizing the [Laravel framework](https://laravel.com).
