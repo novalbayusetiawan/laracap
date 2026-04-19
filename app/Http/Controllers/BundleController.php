@@ -17,7 +17,8 @@ class BundleController extends Controller
 
         $request->validate([
             'file'           => 'required|file',
-            'application_id' => "required|exists:applications,{$column}"
+            'application_id' => "required|exists:applications,{$column}",
+            'name'           => 'nullable|string|max:255'
         ]);
 
         $file = $request->file('file');
@@ -26,11 +27,13 @@ class BundleController extends Controller
         $applicationId = $isUuid 
             ? Application::where('uuid', $request->application_id)->value('id') 
             : $request->application_id;
+            
+        $bundleName = $request->name ?? $request->file('file')->getClientOriginalName();
 
         $bundle = Bundle::create([
             'file_path'      => $path,
-            'name'           => $request->file('file')->getClientOriginalName(),
-            'slug'           => Str::slug($request->file('file')->getClientOriginalName()),
+            'name'           => $bundleName,
+            'slug'           => Str::slug($bundleName),
             'size'           => $request->file('file')->getSize(),
             'user_id'        => $request->user()->id,
             'application_id' => $applicationId
