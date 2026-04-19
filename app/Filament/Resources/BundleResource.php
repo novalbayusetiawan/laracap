@@ -38,6 +38,14 @@ class BundleResource extends Resource
                         titleAttribute: 'name',
                         modifyQueryUsing: fn (Builder $query) => $query->where('user_id', auth()->id()),
                     )
+                    ->live()
+                    ->required(),
+                Forms\Components\Select::make('channel_id')
+                    ->relationship(
+                        name: 'channel',
+                        titleAttribute: 'name',
+                        modifyQueryUsing: fn (Builder $query, Forms\Get $get) => $query->where('application_id', $get('application_id'))
+                    )
                     ->required(),
                 Forms\Components\TextInput::make('name')
                     ->placeholder('v1.0.0')
@@ -62,6 +70,10 @@ class BundleResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name'),
+                Tables\Columns\TextColumn::make('channel.name')
+                    ->label('Channel')
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime(),
                 Tables\Columns\TextColumn::make('size')

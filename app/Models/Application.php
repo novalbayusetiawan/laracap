@@ -40,4 +40,9 @@ class Application extends Model
     {
         return $this->hasOne(Bundle::class)->latestOfMany();
     }
+
+    public function channels(): HasMany
+    {
+        return $this->hasMany(Channel::class);
+    }
 }

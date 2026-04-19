@@ -10,11 +10,21 @@ class Bundle extends Model
 {
     use HasUuids;
 
-    protected $fillable = ['name', 'description', 'size', 'file_path', 'application_id'];
+    protected $fillable = ['name', 'description', 'size', 'file_path', 'application_id', 'channel_id'];
 
     public function application(): BelongsTo
     {
         return $this->belongsTo(Application::class);
+    }
+
+    public function channel(): BelongsTo
+    {
+        return $this->belongsTo(Channel::class);
+    }
+
+    public function devices(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Device::class);
     }
 
     public function uniqueIds()

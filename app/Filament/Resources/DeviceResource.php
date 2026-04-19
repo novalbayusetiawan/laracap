@@ -1,0 +1,98 @@
+<?php
+
+namespace App\Filament\Resources;
+
+use App\Filament\Resources\DeviceResource\Pages;
+use App\Models\Device;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Schemas\Schema;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
+use UnitEnum;
+use BackedEnum;
+
+class DeviceResource extends Resource
+{
+    protected static ?string $model = Device::class;
+
+    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-device-phone-mobile';
+
+    protected static UnitEnum|string|null $navigationGroup = 'Main';
+
+    public static function form(Schema $schema): Schema
+    {
+        // Devices are read-only and created by the Capacitor client hitting the API
+        return $schema->schema([]);
+    }
+
+    public static function table(Table $table): Table
+    {
+        return $table
+            ->columns([
+                Tables\Columns\TextColumn::make('device_identifier')
+                    ->label('Device UUID')
+                    ->searchable()
+                    ->copyable()
+                    ->limit(12),
+                Tables\Columns\TextColumn::make('platform')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'ios' => 'gray',
+                        'android' => 'success',
+                        'web' => 'info',
+                        default => 'primary',
+                    })
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('bundle.name')
+                    ->label('Current Bundle')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('last_active_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->description(fn (Device $record) => $record->last_active_at?->diffForHumans()),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+            ])
+            ->filters([
+                //
+            ])
+            ->actions([
+                DeleteAction::make(),
+            ])
+            ->bulkActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
+                ]),
+            ]);
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+
+        if (Auth::user()?->is_admin) {
+            return $query;
+        }
+
+        return $query->whereHas('bundle.application', fn(Builder $query) => $query->where('user_id', Auth::id()));
+    }
+
+    public static function canCreate(): bool
+    {
+        return false;
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => Pages\ManageDevices::route('/'),
+        ];
+    }
+}
