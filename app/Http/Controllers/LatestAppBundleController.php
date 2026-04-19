@@ -12,7 +12,7 @@ class LatestAppBundleController extends Controller
     {
         $deviceIdentifier = $request->input('device_identifier') ?? $request->header('X-Device-Identifier');
         $platform = $request->input('platform') ?? $request->header('X-Platform');
-        $bundleId = $request->input('bundle_id') ?? $request->header('X-Bundle-Id');
+        $bundleId = $request->input('bundle_id') ?? $request->header('X-Bundle-Id') ?? $application->latestBundle->id;
 
         if ($deviceIdentifier && $platform) {
             Device::updateOrCreate(
