@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Bundle;
 use App\Models\Application;
+use App\Models\Channel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -18,6 +19,7 @@ class BundleController extends Controller
         $request->validate([
             'file'           => 'required|file',
             'application_id' => "required|exists:applications,{$column}",
+            'channel'        => "nullable|exists:channels,name",
             'name'           => 'nullable|string|max:255'
         ]);
 
@@ -30,12 +32,15 @@ class BundleController extends Controller
             
         $bundleName = $request->name ?? $request->file('file')->getClientOriginalName();
 
+        $channelId = Channel::where('name', $request->channel)->where('application_id', $applicationId)->value('id');
+
         $bundle = Bundle::create([
             'file_path'      => $path,
             'name'           => $bundleName,
             'slug'           => Str::slug($bundleName),
             'size'           => $request->file('file')->getSize(),
             'user_id'        => $request->user()->id,
+            'channel_id'     => $channelId,
             'application_id' => $applicationId
         ]);
 
