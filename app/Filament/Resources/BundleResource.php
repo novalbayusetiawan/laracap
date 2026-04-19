@@ -44,9 +44,9 @@ class BundleResource extends Resource
                     ->relationship(
                         name: 'channel',
                         titleAttribute: 'name',
-                        modifyQueryUsing: fn (Builder $query, Forms\Get $get) => $query->where('application_id', $get('application_id'))
+                        modifyQueryUsing: fn (Builder $query, \Filament\Schemas\Components\Utilities\Get $get) => $query->where('application_id', $get('application_id'))
                     )
-                    ->required(),
+                    ->nullable(),
                 Forms\Components\TextInput::make('name')
                     ->placeholder('v1.0.0')
                     ->hint('This is the version of the bundle')
