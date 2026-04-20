@@ -4,29 +4,54 @@ namespace App\Filament\Widgets;
 
 use Filament\Widgets\ChartWidget;
 
+use App\Models\Bundle;
+use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
+
 class BundlesChart extends ChartWidget
 {
     protected static ?int $sort = 2;
 
-    protected ?string $heading = 'Bundles Uploaded';
+    protected ?string $heading = 'Recent Bundle Uploads';
 
     protected int | string | array $columnSpan = 'full';
 
     protected function getData(): array
     {
+        $user = Auth::user();
+        
+        $data = [];
+        $labels = [];
+
+        // Last 12 months
+        for ($i = 11; $i >= 0; $i--) {
+            $month = Carbon::now()->subMonths($i);
+            $labels[] = $month->format('M');
+            
+            $query = Bundle::whereMonth('created_at', $month->month)
+                ->whereYear('created_at', $month->year);
+
+            if (!$user->is_admin) {
+                $query->whereHas('application', fn ($q) => $q->where('user_id', $user->id));
+            }
+
+            $data[] = $query->count();
+        }
+
         return [
             'datasets' => [
                 [
                     'label' => 'Bundles uploaded',
-                    'data' => [5, 10, 5, 2, 21, 32, 45, 74, 65, 45, 77, 89],
+                    'data' => $data,
+                    'fill' => 'start',
                 ],
             ],
-            'labels' => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+            'labels' => $labels,
         ];
     }
 
     protected function getType(): string
     {
-        return 'bar';
+        return 'line';
     }
 }
