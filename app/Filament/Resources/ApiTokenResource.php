@@ -55,6 +55,10 @@ class ApiTokenResource extends Resource
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()
                     ->weight('bold'),
+                Tables\Columns\TextColumn::make('tokenable.name')
+                    ->label('User')
+                    ->visible(fn () => Auth::user()?->is_admin)
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('plain_text_token')
                     ->label('Token String')
                     ->copyable()
@@ -78,6 +82,12 @@ class ApiTokenResource extends Resource
                     ->color(fn ($state) => $state && \Carbon\Carbon::parse($state)->isPast() ? 'danger' : 'success'),
             ])
             ->filters([
+                Tables\Filters\SelectFilter::make('tokenable_id')
+                    ->label('User')
+                    ->options(\App\Models\User::pluck('name', 'id'))
+                    ->visible(fn () => Auth::user()?->is_admin)
+                    ->searchable()
+                    ->preload(),
                 Tables\Filters\TernaryFilter::make('expired')
                     ->placeholder('All tokens')
                     ->trueLabel('Expired tokens')
@@ -111,7 +121,13 @@ class ApiTokenResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()
+        $query = parent::getEloquentQuery();
+
+        if (Auth::user()?->is_admin) {
+            return $query;
+        }
+
+        return $query
             ->where('tokenable_id', Auth::id())
             ->where('tokenable_type', \App\Models\User::class);
     }

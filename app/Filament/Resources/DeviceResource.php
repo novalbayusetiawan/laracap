@@ -61,6 +61,20 @@ class DeviceResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
+                Tables\Filters\SelectFilter::make('application')
+                    ->label('Application')
+                    ->relationship(
+                        'bundle.application', 
+                        'name',
+                        modifyQueryUsing: fn (Builder $query) => $query->where('user_id', auth()->id())
+                    )
+                    ->searchable()
+                    ->preload(),
+                Tables\Filters\SelectFilter::make('channel')
+                    ->label('Channel')
+                    ->relationship('bundle.channel', 'name')
+                    ->searchable()
+                    ->preload(),
                 Tables\Filters\SelectFilter::make('platform')
                     ->options([
                         'ios' => 'iOS',
