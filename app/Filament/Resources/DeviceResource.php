@@ -61,7 +61,17 @@ class DeviceResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('platform')
+                    ->options([
+                        'ios' => 'iOS',
+                        'android' => 'Android',
+                        'web' => 'Web',
+                    ]),
+                Tables\Filters\SelectFilter::make('bundle_id')
+                    ->label('Bundle')
+                    ->relationship('bundle', 'name')
+                    ->searchable()
+                    ->preload(),
             ])
             ->actions([
                 DeleteAction::make(),

@@ -88,6 +88,20 @@ class BundleResource extends Resource
                     ->openUrlInNewTab(),
             ])
             ->filters([
+                Tables\Filters\SelectFilter::make('application_id')
+                    ->label('Application')
+                    ->relationship(
+                        name: 'application',
+                        titleAttribute: 'name',
+                        modifyQueryUsing: fn (Builder $query) => $query->where('user_id', auth()->id()),
+                    )
+                    ->searchable()
+                    ->preload(),
+                Tables\Filters\SelectFilter::make('channel_id')
+                    ->label('Channel')
+                    ->relationship('channel', 'name')
+                    ->searchable()
+                    ->preload(),
                 Tables\Filters\SelectFilter::make('created_at')
                     ->label('Time Period')
                     ->options([

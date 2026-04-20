@@ -62,7 +62,15 @@ class ChannelResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('application_id')
+                    ->label('Application')
+                    ->relationship(
+                        name: 'application',
+                        titleAttribute: 'name',
+                        modifyQueryUsing: fn (Builder $query) => $query->where('user_id', auth()->id()),
+                    )
+                    ->searchable()
+                    ->preload(),
             ])
             ->actions([
                 EditAction::make(),

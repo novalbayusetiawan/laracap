@@ -78,7 +78,15 @@ class ApiTokenResource extends Resource
                     ->color(fn ($state) => $state && \Carbon\Carbon::parse($state)->isPast() ? 'danger' : 'success'),
             ])
             ->filters([
-                //
+                Tables\Filters\TernaryFilter::make('expired')
+                    ->placeholder('All tokens')
+                    ->trueLabel('Expired tokens')
+                    ->falseLabel('Active tokens')
+                    ->queries(
+                        true: fn (Builder $query) => $query->where('expires_at', '<', now()),
+                        false: fn (Builder $query) => $query->where(fn (Builder $query) => $query->whereNull('expires_at')->orWhere('expires_at', '>', now())),
+                        blank: fn (Builder $query) => $query,
+                    ),
             ])
             ->actions([
                 Action::make('copy')
