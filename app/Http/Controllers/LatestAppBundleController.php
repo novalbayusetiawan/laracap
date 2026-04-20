@@ -17,11 +17,17 @@ class LatestAppBundleController extends Controller
         $channelName      = $request->input('channel') ?? $request->header('X-Channel');
 
         if ($deviceIdentifier && $platform) {
+            $bundleId = is_numeric($currentBundleId) ? $currentBundleId : null;
+
+            if ($bundleId && ! Bundle::where('id', $bundleId)->exists()) {
+                $bundleId = null;
+            }
+
             Device::updateOrCreate(
                 ['device_identifier' => $deviceIdentifier],
                 [
                     'platform'       => $platform,
-                    'bundle_id'      => $currentBundleId ?: null,
+                    'bundle_id'      => $bundleId,
                     'last_active_at' => now(),
                 ]
             );
@@ -40,7 +46,7 @@ class LatestAppBundleController extends Controller
             }
         }
 
-        $currentBundle = $currentBundleId ? Bundle::find($currentBundleId) : null;
+        $currentBundle = is_numeric($currentBundleId) ? Bundle::find($currentBundleId) : null;
 
         return response()->json([
             'is_update_available' => $isUpdateAvailable,

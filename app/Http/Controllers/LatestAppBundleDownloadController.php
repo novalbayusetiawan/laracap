@@ -34,7 +34,10 @@ class LatestAppBundleDownloadController extends Controller
             return response()->json(['message' => 'No bundle found'], 404);
         }
 
-        return response()->download(storage_path('app/public/' . $latestBundle->file_path));
+        return response()->download(storage_path('app/public/' . $latestBundle->file_path), null, [
+            'X-Bundle-Id'   => $latestBundle->id,
+            'X-Bundle-Uuid' => $latestBundle->uuid,
+        ]);
     }
 }
 
