@@ -26,6 +26,9 @@ class UserResource extends Resource
     protected static ?string $model = User::class;
 
     protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-user-circle';
+
+    protected static ?int $navigationSort = 10;
+
     protected static UnitEnum|string|null $navigationGroup = 'Settings';
 
     public static function canViewAny(): bool
