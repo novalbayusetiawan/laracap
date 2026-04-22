@@ -25,7 +25,7 @@ class ApiTokenResource extends Resource
 
     protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-key';
 
-    protected static UnitEnum|string|null $navigationGroup = 'Main';
+    protected static UnitEnum|string|null $navigationGroup = 'Settings';
 
     public static function form(Schema $schema): Schema
     {
