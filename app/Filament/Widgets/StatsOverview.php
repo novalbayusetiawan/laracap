@@ -43,6 +43,15 @@ class StatsOverview extends BaseWidget
                 ->descriptionIcon('heroicon-m-device-phone-mobile')
                 ->color('info')
                 ->icon('heroicon-o-cpu-chip'),
+            // create stat of bundle sizes
+            Stat::make('Bundle Sizes', function() use ($user) {
+                $size = Bundle::query()->whereHas('application', fn ($q) => $q->where('user_id', $user->id))
+                ->sum('size');
+                return \Illuminate\Support\Number::fileSize($size, precision: 2);
+            })
+            ->descriptionIcon('heroicon-m-device-phone-mobile')
+            ->color('info')
+            ->icon('heroicon-o-cpu-chip'),
         ];
 
         if ($isAdmin) {
