@@ -60,6 +60,12 @@ class ChannelResource extends Resource
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+
+                // get bundle count
+                Tables\Columns\TextColumn::make('bundles_count')
+                    ->label('Bundles')
+                    ->counts('bundles')
+                    ->sortable(),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('application_id')

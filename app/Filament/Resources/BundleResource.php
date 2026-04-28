@@ -139,7 +139,7 @@ class BundleResource extends Resource
             return $query;
         }
 
-        return $query->whereHas('application', fn(Builder $query) => $query->where('user_id', Auth::id()));
+        return $query->whereHas('application', fn(Builder $query) => $query->where('user_id', Auth::id()))->orderBy('created_at', 'desc');
     }
 
     public static function getRelations(): array
