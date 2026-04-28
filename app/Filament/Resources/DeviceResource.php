@@ -48,13 +48,16 @@ class DeviceResource extends Resource
                         default => 'primary',
                     })
                     ->searchable(),
+                Tables\Columns\TextColumn::make('bundle.application.name')
+                    ->label('Application')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('last_active_at')
+                        ->dateTime()
+                        ->sortable()
+                        ->description(fn (Device $record) => $record->last_active_at?->diffForHumans()),
                 Tables\Columns\TextColumn::make('bundle.name')
                     ->label('Current Bundle')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('last_active_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->description(fn (Device $record) => $record->last_active_at?->diffForHumans()),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -105,7 +108,7 @@ class DeviceResource extends Resource
             return $query;
         }
 
-        return $query->whereHas('bundle.application', fn(Builder $query) => $query->where('user_id', Auth::id()));
+        return $query->whereHas('bundle.application', fn(Builder $query) => $query->where('user_id', Auth::id()))->orderBy('last_active_at', 'desc');
     }
 
     public static function canCreate(): bool

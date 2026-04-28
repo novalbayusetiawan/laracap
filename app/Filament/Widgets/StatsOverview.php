@@ -42,7 +42,7 @@ class StatsOverview extends BaseWidget
                 ->description('Devices with your bundles')
                 ->descriptionIcon('heroicon-m-device-phone-mobile')
                 ->color('info')
-                ->icon('heroicon-o-cpu-chip'),
+                ->icon('heroicon-o-device-phone-mobile'),
             // create stat of bundle sizes
             Stat::make('Bundle Sizes', function() use ($user) {
                 $size = Bundle::query()->whereHas('application', fn ($q) => $q->where('user_id', $user->id))
