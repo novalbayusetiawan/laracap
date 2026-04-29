@@ -11,7 +11,7 @@ class ActiveUsersChart extends ChartWidget
 {
     protected static ?int $sort = 2;
 
-    protected ?string $heading = 'Daily Active Users';
+    protected ?string $heading = 'Daily Active Users (Daily Unique)';
 
     protected function getData(): array
     {

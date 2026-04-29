@@ -61,7 +61,39 @@ class DeviceResource extends Resource
                     ->toggleable(),
                 Tables\Columns\TextColumn::make('os_version')
                     ->label('OS / Model')
-                    ->getStateUsing(fn (Device $record) => trim(($record->latestLog?->os_version ?? '').' '.($record->latestLog?->device_model ?? '')) ?: 'Unknown')
+                    ->getStateUsing(function (Device $record) {
+                        $log = $record->latestLog;
+                        if (! $log) {
+                            return 'Unknown';
+                        }
+
+                        $ua = $log->user_agent;
+                        if ($ua && preg_match('/\((.*?)\)/', $ua, $matches)) {
+                            $parts = array_map('trim', explode(';', $matches[1]));
+                            $os = '';
+                            $model = '';
+                            foreach ($parts as $part) {
+                                if (stripos($part, 'Android') !== false) {
+                                    $os = $part;
+                                } elseif (stripos($part, 'Build/') !== false) {
+                                    $model = trim(explode('Build/', $part)[0]);
+                                    if (str_contains($model, ' ')) {
+                                        $model = explode(' ', $model)[0];
+                                    }
+                                }
+                            }
+
+                            if ($os && $model) {
+                                return "{$os}; {$model}";
+                            }
+
+                            if ($os) {
+                                return $os;
+                            }
+                        }
+
+                        return trim(($log->os_version ?? '').' '.($log->device_model ?? '')) ?: 'Unknown';
+                    })
                     ->toggleable(),
                 Tables\Columns\TextColumn::make('last_active_at')
                     ->dateTime()

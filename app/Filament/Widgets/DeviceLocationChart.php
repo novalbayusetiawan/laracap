@@ -10,7 +10,7 @@ class DeviceLocationChart extends ChartWidget
 {
     protected static ?int $sort = 3;
 
-    protected ?string $heading = 'Top 10 Device Locations';
+    protected ?string $heading = 'Top 10 Device Locations (Logs)';
 
     protected function getData(): array
     {

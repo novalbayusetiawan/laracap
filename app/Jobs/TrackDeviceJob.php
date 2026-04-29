@@ -80,9 +80,18 @@ class TrackDeviceJob implements ShouldQueue
         // Basic OS/Model parsing from UA
         if ($this->ua) {
             if (preg_match('/\((.*?)\)/', $this->ua, $matches)) {
-                $parts = explode(';', $matches[1]);
-                $data['os_version'] = trim($parts[0] ?? '');
-                $data['device_model'] = trim($parts[1] ?? ($parts[2] ?? ''));
+                $parts = array_map('trim', explode(';', $matches[1]));
+                foreach ($parts as $part) {
+                    if (stripos($part, 'Android') !== false) {
+                        $data['os_version'] = $part;
+                    } elseif (stripos($part, 'Build/') !== false) {
+                        $model = trim(explode('Build/', $part)[0]);
+                        if (str_contains($model, ' ')) {
+                            $model = explode(' ', $model)[0];
+                        }
+                        $data['device_model'] = $model;
+                    }
+                }
             }
         }
 
@@ -96,16 +105,16 @@ class TrackDeviceJob implements ShouldQueue
         );
 
         DeviceLog::create([
-            'device_id'      => $device->id,
+            'device_id' => $device->id,
             'application_id' => $this->applicationId,
-            'bundle_id'      => $this->bundleId,
-            'ip_address'     => $this->ip,
-            'user_agent'     => $this->ua,
-            'country'        => $data['country'] ?? null,
-            'city'           => $data['city'] ?? null,
-            'os_version'     => $data['os_version'] ?? null,
-            'device_model'   => $data['device_model'] ?? null,
-            'type'           => $this->type,
+            'bundle_id' => $this->bundleId,
+            'ip_address' => $this->ip,
+            'user_agent' => $this->ua,
+            'country' => $data['country'] ?? null,
+            'city' => $data['city'] ?? null,
+            'os_version' => $data['os_version'] ?? null,
+            'device_model' => $data['device_model'] ?? null,
+            'type' => $this->type,
         ]);
     }
 }
