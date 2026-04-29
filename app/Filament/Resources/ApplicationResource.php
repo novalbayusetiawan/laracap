@@ -3,9 +3,8 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ApplicationResource\Pages;
-use App\Filament\Resources\ApplicationResource\RelationManagers;
 use App\Models\Application;
-use Filament\Actions\Action;
+use BackedEnum;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -13,25 +12,22 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Infolists;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Auth;
-use Filament\Infolists;
-use Filament\Infolists\Infolist;
-use Filament\Schemas\Schema;
 use UnitEnum;
-use BackedEnum;
 
 class ApplicationResource extends Resource
 {
     protected static ?string $model = Application::class;
 
     protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-squares-2x2';
+
     protected static UnitEnum|string|null $navigationGroup = 'Main';
 
     public static function infolist(Schema $schema): Schema
@@ -57,20 +53,21 @@ class ApplicationResource extends Resource
                             ->markdown(),
 
                         Infolists\Components\RepeatableEntry::make('bundles')
+                            ->label('Bundles')
                             ->schema([
                                 Infolists\Components\IconEntry::make('file_path')
-                                    ->label(fn($record) => $record->size > 1024 * 1024 ?
-                                        'Download (' . round($record->size / (1024 * 1024), 2) . ' MB)' :
-                                        'Download (' . round($record->size / 1024) . ' KB)')
+                                    ->label(fn ($record) => $record->size > 1024 * 1024 ?
+                                        'Download ('.round($record->size / (1024 * 1024), 2).' MB)' :
+                                        'Download ('.round($record->size / 1024).' KB)')
                                     ->icon('heroicon-o-arrow-down-tray')
-                                    ->url(fn($record): string => asset('storage/' . $record->file_path))
+                                    ->url(fn ($record): string => asset('storage/'.$record->file_path))
                                     ->openUrlInNewTab(),
                                 Infolists\Components\TextEntry::make('name')
                                     ->label('Version'),
                                 Infolists\Components\TextEntry::make('created_at')
                                     ->dateTime(),
                             ])
-                            ->columns(3)
+                            ->columns(3),
 
                     ])
                     ->columns(1),
@@ -90,6 +87,11 @@ class ApplicationResource extends Resource
                 Forms\Components\Textarea::make('description')
                     ->columnSpanFull()
                     ->maxLength(255),
+                Forms\Components\TextInput::make('bundle_limit')
+                    ->label('Bundle Retention Limit')
+                    ->helperText('Number of bundles to keep. Oldest will be deleted when this limit is reached. Leave empty for no limit.')
+                    ->numeric()
+                    ->minValue(1),
             ]);
     }
 
@@ -100,6 +102,11 @@ class ApplicationResource extends Resource
                 Tables\Columns\TextColumn::make('name')->searchable(),
                 Tables\Columns\TextColumn::make('slug'),
                 Tables\Columns\TextColumn::make('user.name'),
+                Tables\Columns\TextColumn::make('bundle_limit')
+                    ->label('Bundle Limit')
+                    ->badge()
+                    ->color(fn ($state) => $state ? 'info' : 'gray')
+                    ->formatStateUsing(fn ($state) => $state ?? 'Unlimited'),
             ])
             ->filters([
                 //
@@ -145,6 +152,7 @@ class ApplicationResource extends Resource
     {
         return [
             'index' => Pages\ListApplications::route('/'),
+            'view' => Pages\ViewApplication::route('/{record}'),
         ];
     }
 }
