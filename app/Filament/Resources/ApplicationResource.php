@@ -105,8 +105,20 @@ class ApplicationResource extends Resource
                 Tables\Columns\TextColumn::make('bundle_limit')
                     ->label('Bundle Limit')
                     ->badge()
-                    ->color(fn ($state) => $state ? 'info' : 'gray')
+                    ->color(fn ($state) => $state ? 'danger' : 'gray')
                     ->formatStateUsing(fn ($state) => $state ?? 'Unlimited'),
+
+                Tables\Columns\TextColumn::make('bundles_count')
+                    ->label('Bundles')
+                    ->badge()
+                    ->color('info')
+                    ->counts('bundles'),
+
+                Tables\Columns\TextColumn::make('channels_count')
+                    ->label('Channels')
+                    ->badge()
+                    ->color('success')
+                    ->counts('channels'),
             ])
             ->filters([
                 //
