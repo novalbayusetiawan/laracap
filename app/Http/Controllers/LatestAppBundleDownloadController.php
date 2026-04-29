@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\Application;
-use App\Models\Device;
+use App\Traits\TracksDevice;
 use Illuminate\Http\Request;
 
 class LatestAppBundleDownloadController extends Controller
 {
+    use TracksDevice;
+
     public function __invoke(Application $application, Request $request)
     {
         $deviceIdentifier = $request->input('device_identifier') ?? $request->header('X-Device-Identifier');
@@ -20,24 +22,16 @@ class LatestAppBundleDownloadController extends Controller
             :  null;
 
         if ($deviceIdentifier && $platform) {
-            Device::updateOrCreate(
-                ['device_identifier' => $deviceIdentifier],
-                [
-                    'platform'       => $platform,
-                    'bundle_id'      => $latestBundle?->id,
-                    'last_active_at' => now(),
-                ]
-            );
+            $this->trackDevice($request, $deviceIdentifier, $platform, $latestBundle?->id, $application->id, 'download');
         }
 
-        if (!$latestBundle) {
+        if (! $latestBundle) {
             return response()->json(['message' => 'No bundle found'], 404);
         }
 
-        return response()->download(storage_path('app/public/' . $latestBundle->file_path), null, [
+        return response()->download(storage_path('app/public/'.$latestBundle->file_path), null, [
             'X-Bundle-Id'   => $latestBundle->id,
             'X-Bundle-Uuid' => $latestBundle->uuid,
         ]);
     }
 }
-

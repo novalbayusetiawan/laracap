@@ -2,7 +2,7 @@
 
 namespace App\Filament\Widgets;
 
-use App\Models\Device;
+use App\Models\DeviceLog;
 use Carbon\Carbon;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Facades\Auth;
@@ -25,13 +25,13 @@ class ActiveUsersChart extends ChartWidget
             $date = Carbon::now()->subDays($i);
             $labels[] = $date->format('M d');
 
-            $query = Device::whereDate('last_active_at', $date->toDateString());
+            $query = DeviceLog::whereDate('created_at', $date->toDateString());
 
             if (! $user->is_admin) {
-                $query->whereHas('bundle.application', fn ($q) => $q->where('user_id', $user->id));
+                $query->whereHas('application', fn ($q) => $q->where('user_id', $user->id));
             }
 
-            $data[] = $query->count();
+            $data[] = $query->distinct('device_id')->count();
         }
 
         return [

@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Application;
 use App\Models\Bundle;
-use App\Models\Device;
+use App\Traits\TracksDevice;
 use Illuminate\Http\Request;
 
 class LatestAppBundleController extends Controller
 {
+    use TracksDevice;
+
     public function __invoke(Application $application, Request $request)
     {
         $deviceIdentifier = $request->input('device_identifier') ?? $request->header('X-Device-Identifier');
@@ -23,14 +25,7 @@ class LatestAppBundleController extends Controller
                 $bundleId = null;
             }
 
-            Device::updateOrCreate(
-                ['device_identifier' => $deviceIdentifier],
-                [
-                    'platform'       => $platform,
-                    'bundle_id'      => $bundleId,
-                    'last_active_at' => now(),
-                ]
-            );
+            $this->trackDevice($request, $deviceIdentifier, $platform, $bundleId, $application->id, 'check');
         }
 
         $channel      = $application->channels()->where('name', $channelName)->first();
@@ -41,7 +36,7 @@ class LatestAppBundleController extends Controller
         $isUpdateAvailable = false;
 
         if ($latestBundle) {
-            if (!$currentBundleId || $latestBundle->id > (int) $currentBundleId) {
+            if (! $currentBundleId || $latestBundle->id > (int) $currentBundleId) {
                 $isUpdateAvailable = true;
             }
         }
@@ -56,4 +51,3 @@ class LatestAppBundleController extends Controller
         ]);
     }
 }
-
