@@ -4,17 +4,17 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\DeviceResource\Pages;
 use App\Models\Device;
+use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
-use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use UnitEnum;
-use BackedEnum;
 
 class DeviceResource extends Resource
 {
@@ -51,10 +51,22 @@ class DeviceResource extends Resource
                 Tables\Columns\TextColumn::make('bundle.application.name')
                     ->label('Application')
                     ->searchable(),
+                Tables\Columns\TextColumn::make('latestLog.ip_address')
+                    ->label('IP')
+                    ->searchable()
+                    ->toggleable(),
+                Tables\Columns\TextColumn::make('location')
+                    ->label('Location')
+                    ->getStateUsing(fn (Device $record) => ($record->latestLog?->city && $record->latestLog?->country) ? "{$record->latestLog->city}, {$record->latestLog->country}" : 'Unknown')
+                    ->toggleable(),
+                Tables\Columns\TextColumn::make('os_version')
+                    ->label('OS / Model')
+                    ->getStateUsing(fn (Device $record) => trim(($record->latestLog?->os_version ?? '').' '.($record->latestLog?->device_model ?? '')) ?: 'Unknown')
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('last_active_at')
-                        ->dateTime()
-                        ->sortable()
-                        ->description(fn (Device $record) => $record->last_active_at?->diffForHumans()),
+                    ->dateTime()
+                    ->sortable()
+                    ->description(fn (Device $record) => $record->last_active_at?->diffForHumans()),
                 Tables\Columns\TextColumn::make('bundle.name')
                     ->label('Current Bundle')
                     ->searchable(),
@@ -67,7 +79,7 @@ class DeviceResource extends Resource
                 Tables\Filters\SelectFilter::make('application')
                     ->label('Application')
                     ->relationship(
-                        'bundle.application', 
+                        'bundle.application',
                         'name',
                         modifyQueryUsing: fn (Builder $query) => $query->where('user_id', auth()->id())
                     )
@@ -108,7 +120,7 @@ class DeviceResource extends Resource
             return $query;
         }
 
-        return $query->whereHas('bundle.application', fn(Builder $query) => $query->where('user_id', Auth::id()))->orderBy('last_active_at', 'desc');
+        return $query->whereHas('bundle.application', fn (Builder $query) => $query->where('user_id', Auth::id()))->orderBy('last_active_at', 'desc');
     }
 
     public static function canCreate(): bool
