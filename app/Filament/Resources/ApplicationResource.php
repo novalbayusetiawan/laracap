@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\ApplicationResource\Pages;
 use App\Models\Application;
 use BackedEnum;
+use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -124,6 +125,14 @@ class ApplicationResource extends Resource
                 //
             ])
             ->actions([
+                Action::make('copy_id')
+                    ->icon('heroicon-o-clipboard-document')
+                    ->label('Copy ID')
+                    ->color('gray')
+                    ->action(fn () => null)
+                    ->extraAttributes(fn ($record) => [
+                        'x-on:click.prevent' => "window.navigator.clipboard.writeText('{$record->uuid}'); \$tooltip('Copied to clipboard');",
+                    ]),
                 ActionGroup::make([
                     ViewAction::make(),
                     EditAction::make()
