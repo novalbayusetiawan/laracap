@@ -69,7 +69,6 @@ class BundleResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name'),
                 Tables\Columns\TextColumn::make('channel.name')
                     ->label('Channel')
                     ->searchable()
@@ -86,6 +85,7 @@ class BundleResource extends Resource
                     ->icon('heroicon-o-arrow-down-tray')
                     ->url(fn(Bundle $record): string => asset('storage/' . $record->file_path))
                     ->openUrlInNewTab(),
+                Tables\Columns\TextColumn::make('name'),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('application_id')
