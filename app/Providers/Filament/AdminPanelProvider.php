@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use Filament\Actions\Action;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -10,6 +11,7 @@ use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\Support\Facades\FilamentView;
 use Filament\Widgets;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
@@ -20,6 +22,14 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 class AdminPanelProvider extends PanelProvider
 {
+    public function boot(): void
+    {
+        FilamentView::registerRenderHook(
+            'panels::body.end',
+            fn (): string => view('filament.hooks.sync-loading')->render(),
+        );
+    }
+
     public function panel(Panel $panel): Panel
     {
         return $panel
@@ -28,6 +38,16 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login()
             ->registration()
+            ->userMenuItems([
+                Action::make('sync_update')
+                    ->label('Sync Update')
+                    ->icon('heroicon-o-arrow-path')
+                    ->url(fn (): string => route('admin.sync-update'))
+                    ->visible(fn (): bool => auth()->user()?->is_admin ?? false)
+                    ->extraAttributes([
+                        'x-on:click' => "window.dispatchEvent(new CustomEvent('sync-started'))",
+                    ]),
+            ])
             ->colors([
                 'primary' => Color::Amber,
             ])
