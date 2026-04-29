@@ -2,11 +2,10 @@
 
 namespace App\Filament\Widgets;
 
-use Filament\Widgets\ChartWidget;
-
-use App\Models\Bundle;
-use Illuminate\Support\Facades\Auth;
+ use App\Models\Bundle;
 use Carbon\Carbon;
+use Filament\Widgets\ChartWidget;
+use Illuminate\Support\Facades\Auth;
 
 class BundlesChart extends ChartWidget
 {
@@ -14,12 +13,10 @@ class BundlesChart extends ChartWidget
 
     protected ?string $heading = 'Recent Bundle Uploads';
 
-    protected int | string | array $columnSpan = 'full';
-
     protected function getData(): array
     {
         $user = Auth::user();
-        
+
         $data = [];
         $labels = [];
 
@@ -27,11 +24,11 @@ class BundlesChart extends ChartWidget
         for ($i = 11; $i >= 0; $i--) {
             $month = Carbon::now()->subMonths($i);
             $labels[] = $month->format('M');
-            
+
             $query = Bundle::whereMonth('created_at', $month->month)
                 ->whereYear('created_at', $month->year);
 
-            if (!$user->is_admin) {
+            if (! $user->is_admin) {
                 $query->whereHas('application', fn ($q) => $q->where('user_id', $user->id));
             }
 

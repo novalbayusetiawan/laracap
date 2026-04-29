@@ -13,8 +13,6 @@ class ActiveUsersChart extends ChartWidget
 
     protected ?string $heading = 'Daily Active Users';
 
-    protected int|string|array $columnSpan = 'full';
-
     protected function getData(): array
     {
         $user = Auth::user();
