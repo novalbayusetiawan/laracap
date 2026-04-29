@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 
 class ActiveUsersChart extends ChartWidget
 {
-    protected static ?int $sort = 3;
+    protected static ?int $sort = 2;
 
     protected ?string $heading = 'Daily Active Users';
 

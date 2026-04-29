@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 
 class BundlesChart extends ChartWidget
 {
-    protected static ?int $sort = 2;
+    protected static ?int $sort = 4;
 
     protected ?string $heading = 'Recent Bundle Uploads';
 
