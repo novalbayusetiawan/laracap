@@ -2,13 +2,15 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Bundle extends Model
 {
-    use HasUuids;
+    use HasFactory, HasUuids;
 
     protected $fillable = ['name', 'description', 'size', 'file_path', 'application_id', 'channel_id'];
 
@@ -22,7 +24,7 @@ class Bundle extends Model
         return $this->belongsTo(Channel::class);
     }
 
-    public function devices(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function devices(): HasMany
     {
         return $this->hasMany(Device::class);
     }
