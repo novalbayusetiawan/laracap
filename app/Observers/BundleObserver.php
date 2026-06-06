@@ -15,9 +15,13 @@ class BundleObserver
         $application = $bundle->application;
 
         if ($application && $application->bundle_limit) {
-            $bundlesToDelete = $application->bundles()
+            $latestBundleIds = $application->bundles()
                 ->orderBy('created_at', 'desc')
-                ->skip($application->bundle_limit)
+                ->limit($application->bundle_limit)
+                ->pluck('id');
+
+            $bundlesToDelete = $application->bundles()
+                ->whereNotIn('id', $latestBundleIds)
                 ->get();
 
             foreach ($bundlesToDelete as $oldBundle) {
